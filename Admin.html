@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | DRK Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- ADDED CHART SCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #c90000;
+            --dark: #0f172a;
+            --bg-light: #f1f5f9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            background-color: var(--bg-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 240px;
+            background: var(--dark);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-box {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--primary);
+            overflow: hidden;
+        }
+
+        .logo-box img {
+            width: 80%;
+            height: auto;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            flex: 1;
+        }
+
+        .sidebar ul li {
+            padding: 12px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            opacity: 0.7;
+        }
+
+        .sidebar ul li:hover,
+        .sidebar ul li.active {
+            background: var(--primary);
+            opacity: 1;
+        }
+
+        .logout-btn {
+            padding: 20px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Main Layout */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-top: 8px;
+        }
+
+        .data-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+
+        /* GRAPH BOX STYLE */
+        .graph-box {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            height: 400px;
+        }
+
+        /* Forms */
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #475569;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+
+        /* Tables & Badges */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-pay {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-del {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Navigation Logic */
+        .section {
+            display: none;
+        }
+
+        .active-section {
+            display: block !important;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-box">
+                <img src="pictures/logo1.png" alt="Logo" onerror="this.src='https://via.placeholder.com/60'">
+            </div>
+            <div style="font-weight: 800; font-size: 15px;">ADMIN PANEL</div>
+            <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">DRK Management</div>
+        </div>
+        <ul>
+            <li class="active" onclick="showPage(event, 'analytics-page')">Analytics Dashboard</li>
+            <li onclick="showPage(event, 'add-page')">Add New Student</li>
+            <li onclick="showPage(event, 'list-page')">Existing Students List</li>
+            <li onclick="showPage(event, 'status-page')">New Students Status</li>
+            <li onclick="showPage(event, 'sms-page')">SMS Notifications</li>
+            <li onclick="showPage(event, 'export-page')">Export Reports</li>
+            <li onclick="showPage(event, 'settings-page')">Settings</li>
+        </ul>
+        <div class="logout-btn" onclick="handleLogout()">LOGOUT</div>
+    </nav>
+
+    <main class="main-content">
+
+        <!-- ANALYTICS -->
+        <div id="analytics-page" class="section active-section">
+            <h1 style="font-size: 24px; color: var(--dark); margin-bottom: 25px;">Financial Overview</h1>
+
+            <!-- YOUR THREE STAT CARDS AS REQUESTED -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Fees Collected</div>
+                    <div id="totalCollected" class="stat-value" style="color: var(--success);">₹ 0</div>
+                </div>
+                <div class="stat-card" style="border-top-color: var(--danger);">
+                    <div class="stat-label">Pending Fees</div>
+                    <div id="totalPending" class="stat-value" style="color: var(--danger);">₹ 0</div>
+                </div>
+                <div class="stat-card" style="border-top-color: #3b82f6;">
+                    <div class="stat-label">Total Students</div>
+                    <div id="totalStudents" class="stat-value">0</div>
+                </div>
+            </div>
+
+            <!-- TRIPLE COLLECTION GRAPH SECTION -->
+            <div class="graph-box">
+                <h3 style="font-size: 16px; margin-bottom: 20px; color: var(--dark);">Monthly Collection Analytics</h3>
+                <canvas id="collectionChart"></canvas>
+            </div>
+
+            <div class="data-card" style="margin-top:20px;">
+                <label style="font-weight: 600;">System Quick Sync</label>
+                <p style="font-size: 13px; color: #64748b;">Dashboard automatically syncs with local records.</p>
+            </div>
+        </div>
+
+        <!-- ADD STUDENT -->
+        <div id="add-page" class="section">
+            <h1 style="font-size: 24px; color: var(--dark); margin-bottom: 25px;">Register New Student</h1>
+            <div class="data-card">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="input-group"><label>Roll Number</label><input type="text" id="regRoll"
+                            placeholder="rollno">
+                    </div>
+                    <div class="input-group"><label>Student Name</label><input type="text" id="regName"
+                            placeholder="Full Name"></div>
+                    <div class="input-group"><label>Phone Number</label><input type="text" id="regPhone"
+                            placeholder="10 Digit Number"></div>
+                    <div class="input-group">
+                        <label>Branch</label>
+                        <select id="regBranch">
+                            <option>CSE</option>
+                            <option>CSC</option>
+                            <option>CSD</option>
+                            <option>CSM</option>
+                            <option>ECE</option>
+                            <option>MECH</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>Course Fee (₹)</label><input type="number" id="regCourseFee"
+                            placeholder="0"></div>
+                    <div class="input-group"><label>Exam Fee (₹)</label><input type="number" id="regExamFee"
+                            placeholder="0"></div>
+                    <div class="input-group">
+                        <label>Student Category</label>
+                        <select id="regType">
+                            <option value="OLD">Existing Student</option>
+                            <option value="NEW">New Admission</option>
+                            <option value="EXTERNAL">External Student</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label> Password </label><input type="password" id="regDOB" placeholder=""
+                            max="8">
+                    </div>
+                </div>
+                <button onclick="addStudent()"
+                    style="width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px;">
+                    SAVE STUDENT RECORD
+                </button>
+            </div>
+        </div>
+
+        <!-- LIST PAGES -->
+        <div id="list-page" class="section">
+            <h1 style="font-size: 24px;">Existing Students Database</h1>
+            <div class="data-card">
+                <input type="text" placeholder="Search students..." onkeyup="searchTable(this, 'studentTableBody')">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Branch</th>
+                            <th>CourseFee</th>
+                            <th>ExamFee</th>
+                            <th>Paid</th>
+                            <th>Due</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="status-page" class="section">
+            <h1 style="font-size: 24px;">New Student Admissions</h1>
+            <div class="data-card">
+                <input type="text" placeholder="Search admissions..." onkeyup="searchTable(this, 'statusTableBody')">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Branch</th>
+                            <th>CourseFee</th>
+                            <th>ExamFee</th>
+                            <th>Paid</th>
+                            <th>Due</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statusTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SMS -->
+        <div id="sms-page" class="section">
+            <h1 style="font-size: 24px;">Smart SMS Center</h1>
+            <div class="data-card">
+                <div
+                    style="background: #e3f2fd; border-left: 5px solid #2196f3; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+                    <strong style="color: #0d47a1;">Smart Filter:</strong>
+                    <p style="font-size: 12px; margin-top: 5px;">Only students with <b>Pending Fees</b> will receive
+                        reminders if filtered.</p>
+                </div>
+                <label>Message Content</label>
+                <textarea id="smsBody" rows="4" placeholder="Type your notification here..."></textarea>
+                <button onclick="sendSmartSMS()"
+                    style="width: 100%; padding: 15px; background: #f39c12; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    🚀 SEND SMS TO PENDING STUDENTS
+                </button>
+            </div>
+        </div>
+
+        <!-- EXPORT -->
+        <div id="export-page" class="section">
+            <h1 style="font-size: 24px;">Export Reports</h1>
+            <div class="data-card" style="text-align: center; padding: 50px;">
+                <p>Generate a complete CSV report of all student financial records.</p>
+                <button onclick="exportData()"
+                    style="padding: 15px 30px; background: var(--success); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    DOWNLOAD EXCEL (.CSV)
+                </button>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settings-page" class="section">
+            <h1 style="font-size: 24px;">System Settings</h1>
+            <div class="data-card">
+                <h3 style="color: var(--danger);">Danger Zone</h3>
+                <p style="font-size: 14px; color: #64748b;">This action will wipe the local database. Proceed with
+                    caution.</p>
+                <button onclick="resetDatabase()"
+                    style="padding: 10px 20px; background: var(--danger); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                    CLEAR ALL RECORDS
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Database Initialization
+        let students = [];
+        let myChart; // Global chart variable
+
+        async function loadStudents() {
+            try {
+                const response = await fetch('http://localhost:3000/api/get-students');
+                const result = await response.json();
+                if (result.success && Array.isArray(result.students)) {
+                    students = result.students.map(s => {
+                        const courseFee = Number(s.course_fee || s.courseFee || 0);
+                        const examFee = Number(s.exam_fee || s.examFee || 0);
+                        const totalFee = courseFee + examFee;
+                        let paidAmount = Number(s.paid_amount || s.paidAmount || 0);
+
+                        if (paidAmount === 0 && (s.paid === 1 || s.paid === '1' || s.paid === true)) {
+                            paidAmount = totalFee;
+                        }
+
+                        const isPaid = paidAmount >= totalFee && totalFee > 0;
+                        const computedStatus = isPaid ? 'PAID' : 'PENDING';
+
+                        return {
+                            roll: s.roll_no || s.roll || '',
+                            name: s.student_name || s.name || '',
+                            phone: s.phone || '',
+                            branch: s.branch || '',
+                            type: s.student_category || s.type || 'OLD',
+                            courseFee,
+                            examFee,
+                            paidAmount,
+                            totalFee,
+                            paid: isPaid,
+                            status: s.status === 'PAID' || s.status === 'PENDING' ? s.status : computedStatus,
+                            paidMonth: s.paidMonth || 0
+                        };
+                    });
+                    saveData();
+                } else {
+                    // fallback to localStorage if API call fails or empty
+                    const fallback = JSON.parse(localStorage.getItem('studentData')) || [];
+                    students = fallback;
+                }
+            } catch (err) {
+                console.warn('Could not load students from backend, using local cache:', err);
+                students = JSON.parse(localStorage.getItem('studentData')) || [];
+            }
+            updateUI();
+        }
+
+        function showPage(evt, pageId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+            document.getElementById(pageId).classList.add('active-section');
+
+            document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
+            if (evt) evt.currentTarget.classList.add('active');
+
+            // Reload students data from backend when switching to list/status pages
+            if (pageId === 'list-page' || pageId === 'status-page' || pageId === 'analytics-page') {
+                loadStudents();
+            } else {
+                updateUI();
+            }
+        }
+        async function addStudent() {
+            // 1. Grab values from the screen
+            const roll = document.getElementById('regRoll').value.trim().toUpperCase();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const branch = document.getElementById('regBranch').value;
+            const category = document.getElementById('regType').value; // Category dropdown
+            const password = document.getElementById('regDOB').value.trim();
+            const enteredCourseFee = Number(document.getElementById('regCourseFee').value) || 0;
+            const enteredExamFee = Number(document.getElementById('regExamFee').value) || 0;
+
+            // 2. logic on category values
+            let cFee = enteredCourseFee;
+            let eFee = enteredExamFee;
+            if (category === 'NEW') {
+                cFee = cFee || 95000;
+                eFee = eFee || 10000;
+            } else if (category === 'OLD') {
+                cFee = cFee || 80000;
+                eFee = eFee || 5000;
+            } else if (category === 'EXTERNAL') {
+                cFee = cFee || 0;
+                eFee = eFee || 3500;
+            }
+
+            // 3. Validation
+            if (!roll || !name || !phone || !password) {
+                alert('Please fill in Roll Number, Name, Phone and Password!');
+                return;
+            }
+
+            // 4. Create the data object (including student_category)
+            const studentData = {
+                roll_no: roll,
+                student_name: name,
+                phone: phone,
+                branch: branch,
+                student_category: category,
+                course_fee: cFee,
+                exam_fee: eFee,
+                password: password
+            };
+
+            try {
+                // 5. Send data to Node.js server
+                const response = await fetch('http://localhost:3000/api/add-student', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(studentData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ Success! ${name} added as ${category}`);
+
+                    // Add to local array for immediate redraw
+                    students.push({
+                        roll,
+                        name,
+                        phone,
+                        branch,
+                        type: category,
+                        courseFee: cFee,
+                        examFee: eFee,
+                        paid: false,
+                        paidMonth: 0
+                    });
+                    saveData();
+                    updateUI();
+
+                    // Clear the form fields
+                    document.getElementById('regRoll').value = "";
+                    document.getElementById('regName').value = "";
+                    document.getElementById('regPhone').value = "";
+                    document.getElementById('regCourseFee').value = "";
+                    document.getElementById('regExamFee').value = "";
+                    document.getElementById('regDOB').value = "";
+                } else {
+                    alert("❌ Database Error: " + result.message);
+                }
+
+            } catch (error) {
+                console.error("Connection Error:", error);
+                alert("❌ Server not running! Please start 'node server.js' in terminal.");
+            }
+        }
+        function updateUI() {
+            const existingList = document.getElementById('studentTableBody');
+            const newList = document.getElementById('statusTableBody');
+
+            existingList.innerHTML = "";
+            newList.innerHTML = "";
+
+            let collected = 0;
+            let pending = 0;
+
+            // For Graph Data
+            let monthlyData = new Array(12).fill(0);
+
+            students.forEach((s, index) => {
+                let total = Number(s.totalFee || s.courseFee + s.examFee);
+                let paidAmount = Number(s.paidAmount || 0);
+                let isPaid = Boolean(s.paid || s.status === 'PAID' || paidAmount >= total);
+                if (isPaid) {
+                    paidAmount = total;
+                }
+                let dueAmount = Math.max(total - paidAmount, 0);
+
+                collected += paidAmount;
+                pending += dueAmount;
+                if (paidAmount > 0) {
+                    monthlyData[s.paidMonth || 0] += paidAmount;
+                }
+
+                let row = `
+                    <tr>
+                        <td style="font-weight:bold;">${s.roll}</td>
+                        <td>${s.name}</td>
+                        <td>${s.phone}</td>
+                        <td>${s.branch}</td>
+                        <td>₹${s.courseFee}</td>
+                        <td>₹${s.examFee}</td>
+                        <td>₹${paidAmount}</td>
+                        <td>₹${dueAmount}</td>
+                        <td><span class="badge ${dueAmount === 0 ? 'badge-success' : 'badge-danger'}">${dueAmount === 0 ? 'Paid' : 'Pending'}</span></td>
+                        <td>
+                            <button class="action-btn btn-pay" onclick="viewPaymentList(${index})">view</button>
+                            <button class="action-btn btn-del" onclick="deleteStudent(${index})">✖</button>
+                        </td>
+                    </tr>
+                `;
+
+                if (s.type === 'NEW') newList.innerHTML += row;
+                else existingList.innerHTML += row;
+            });
+
+            document.getElementById('totalCollected').innerText = `₹ ${collected.toLocaleString()}`;
+            document.getElementById('totalPending').innerText = `₹ ${pending.toLocaleString()}`;
+            document.getElementById('totalStudents').innerText = students.length;
+
+            initGraph(monthlyData); // Refresh graph with new data
+        }
+
+        // TRIPLE COLLECTION GRAPH FUNCTION
+        function initGraph(currentYearData) {
+            const ctx = document.getElementById('collectionChart').getContext('2d');
+
+            // Dummy data for comparison
+            const lastYearData = [300000, 450000, 320000, 500000, 480000, 600000, 550000, 700000, 650000, 800000, 750000, 900000];
+            const targetData = [500000, 500000, 500000, 500000, 500000, 500000, 500000, 500000, 500000, 500000, 500000, 500000];
+
+            if (myChart) myChart.destroy(); // Destroy old chart before creating new one
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: 'Current Year Collection',
+                            data: currentYearData,
+                            borderColor: '#c90000',
+                            backgroundColor: 'rgba(201, 0, 0, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Last Year Collection',
+                            data: lastYearData,
+                            borderColor: '#94a3b8',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Target Goal',
+                            data: targetData,
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            fill: false,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function togglePaid(index) {
+            const student = students[index];
+            const newPaidStatus = !student.paid;
+
+            fetch('http://localhost:3000/api/update-payment-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    roll_no: student.roll,
+                    paid: newPaidStatus
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        students[index].paid = newPaidStatus;
+                        students[index].paidAmount = data.paid_amount || (newPaidStatus ? student.totalFee : 0);
+                        students[index].status = data.status || (newPaidStatus ? 'PAID' : 'PENDING');
+                        students[index].paidMonth = new Date().getMonth();
+                        saveData();
+                        updateUI();
+                        alert("✅ Payment status updated!");
+                    } else {
+                        alert("❌ Failed to update: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error updating payment:", err);
+                    alert("❌ Network error. Check if server is running.");
+                });
+        }
+
+        function deleteStudent(index) {
+            if (confirm("Delete this student?")) {
+                students.splice(index, 1);
+                saveData();
+                updateUI();
+            }
+        }
+
+        function viewPaymentList(index) {
+            const student = students[index];
+            if (!student || !student.roll) {
+                return alert('Student not found');
+            }
+
+            const historyJson = localStorage.getItem(`history_${student.roll}`);
+            if (!historyJson) {
+                return alert(`${student.name} has no payment transactions recorded locally.`);
+            }
+
+            const history = JSON.parse(historyJson);
+            if (!Array.isArray(history) || history.length === 0) {
+                return alert(`${student.name} has no payment transactions recorded locally.`);
+            }
+
+            // Deduplicate exact identical records (same date, type, paid, balance)
+            const seen = new Set();
+            const uniqueHistory = history.filter(item => {
+                const key = `${item.date}||${item.type}||${item.paid}||${item.balance}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            const list = uniqueHistory
+                .map((item, idx) => `${idx + 1}. ${item.date} | ${item.type} | ₹${item.paid} | Balance: ₹${item.balance}`)
+                .join('\n');
+
+            alert(`Payment history for ${student.name} (Roll: ${student.roll}):\n\n${list}`);
+        }
+
+        function saveData() {
+            localStorage.setItem('studentData', JSON.stringify(students));
+        }
+
+        function searchTable(input, tableId) {
+            let filter = input.value.toUpperCase();
+            let rows = document.getElementById(tableId).getElementsByTagName("tr");
+            for (let row of rows) {
+                row.style.display = row.innerText.toUpperCase().includes(filter) ? "" : "none";
+            }
+        }
+
+        async function sendSmartSMS() {
+            const messageBody = document.getElementById('smsBody').value;
+
+            // Get only pending students' numbers
+            const pendingStudents = students.filter(s => Number(s.paidAmount || 0) < Number(s.totalFee || 0));
+            const pendingNumbers = pendingStudents.map(s => s.phone).join(',');
+
+            if (!messageBody) return alert("Please enter a message!");
+            if (pendingStudents.length === 0) return alert("No pending fees found.");
+
+            try {
+                // We now point to OUR server, not Fast2SMS
+                const response = await fetch('http://localhost:3000/send-sms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        numbers: pendingNumbers,
+                        message: messageBody
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.return === true) {
+                    alert(`✅ Success! Server sent SMS to ${pendingStudents.length} students.`);
+                    document.getElementById('smsBody').value = "";
+                } else {
+                    alert("Server Error: " + (result.message || "Failed to send"));
+                }
+            } catch (error) {
+                console.error("Connection Error:", error);
+                alert("Could not connect to your Backend Server. Is server.js running?");
+            }
+        }
+
+        function exportData() {
+            let csv = "Roll No,Name,Phone,Branch,Course Fee,Exam Fee,Status\n";
+            students.forEach(s => {
+                csv += `${s.roll},${s.name},${s.phone},${s.branch},${s.courseFee},${s.examFee},${s.paid ? 'Paid' : 'Pending'}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'DRK_Students_Report.csv';
+            a.click();
+        }
+
+        function resetDatabase() {
+            if (confirm("DANGER: WIPE EVERYTHING?")) {
+                localStorage.removeItem('studentData');
+                students = [];
+                updateUI();
+            }
+        }
+
+        function handleLogout() {
+            if (confirm) window.location.href = "login.html";
+        }
+
+        window.onload = loadStudents;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Exam Fee System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            overflow-x: hidden;
+            background-color: #000;
+        }
+
+        /* --- ALERT BAR --- */
+        .announcement {
+            background: #E74C3C;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .alert-text {
+            flex-grow: 1;
+            animation: blinker 1.5s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .close-alert {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 2px 10px;
+            border-radius: 5px;
+            margin-left: 15px;
+        }
+
+        /* --- BACKGROUND SLIDER --- */
+        .bg-slider {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .active-slide {
+            opacity: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -2;
+        }
+
+        /* --- HEADER --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 60px;
+            position: sticky;
+            top: 40px;
+            z-index: 100;
+            transition: 0.4s;
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        .nav a {
+            color: #2c3e50;
+            margin-left: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .nav a:hover {
+            color: #E74C3C;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            text-align: center;
+            padding: 160px 20px;
+        }
+
+        .hero h1 {
+            font-size: 50px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-btn-advanced {
+            background-color: #E74C3C;
+            color: white;
+            padding: 15px 45px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            transition: 0.4s;
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .login-btn-advanced:hover {
+            transform: translateY(-5px);
+            background-color: #C0392B;
+        }
+
+        .arrow-icon {
+            transition: 0.3s;
+            font-size: 22px;
+        }
+
+        /* --- SECTIONS --- */
+        .section {
+            max-width: 1100px;
+            margin: 80px auto;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h2 {
+            font-size: 35px;
+            color: #E74C3C;
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* --- 🔥 FEATURES CARDS WITH ICONS --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px 20px;
+            border-radius: 20px;
+            text-align: center;
+            transition: 0.4s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #E74C3C;
+        }
+
+        .feature-card i {
+            font-size: 40px;
+            color: #E74C3C;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #bdc3c7;
+            line-height: 1.6;
+        }
+
+        /* --- CONTACT --- */
+        .contact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .contact-item i {
+            font-size: 25px;
+            color: #E74C3C;
+            margin-bottom: 10px;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            background: #0a0a0a;
+            padding: 50px 20px;
+            text-align: center;
+            border-top: 1px solid #222;
+        }
+
+        .social-links {
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 20px;
+            margin: 0 15px;
+            transition: 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #E74C3C;
+        }
+
+        /* --- BACK TO TOP --- */
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #E74C3C;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            z-index: 1000;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: 1s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="announcement" id="alertBox">
+        <div class="alert-text">🔔 Alert: Exam Fee deadline is April 15th, 2026! Pay now to avoid fine.</div>
+        <button class="close-alert" onclick="closeAlert()">✕</button>
+    </div>
+
+    <div class="bg-slider">
+        <div class="slide active-slide"><img src="images/1.jpg"></div>
+        <div class="slide"><img src="images/2.jpg"></div>
+        <div class="slide"><img src="images/3.jpg"></div>
+        <div class="slide"><img src="images/4.jpg"></div>
+        <div class="slide"><img src="images/5.jpg"></div>
+        <div class="slide"><img src="images/6.jpg"></div>
+
+    </div>
+    <div class="overlay"></div>
+
+    <header class="header" id="mainHeader">
+        <img src="pictures/logo.png" class="logo">
+        <nav class="nav">
+            <a href="#">Home</a>
+            <a href="#about">About</a>
+            <a href="#features">Features</a>
+            <a href="#contact">Contact</a>
+            <a href="login.html" style="color: #E74C3C;">Login</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Simplify Your Exam Payments</h1>
+        <h3>The fastest and most secure way to handle your academic finances online.</h3>
+        <button class="login-btn-advanced" onclick="goLogin()">
+            GO TO LOGIN <span class="arrow-icon">→</span>
+        </button>
+    </section>
+
+    <section class="section reveal" id="homeNav">
+        <h2>Navigate the Portal</h2>
+        <p style="text-align:center; color:#ecf0f1; max-width:800px; margin:0 auto 30px;">Every section is accessible
+            directly from the homepage. Click a card to learn more or go to the full page.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-home"></i>
+                <h3>Home</h3>
+                <p>Welcome dashboard, current announcements and quick login access.</p>
+                <a href="#"
+                    style="display:inline-block;margin-top:14px;color:#E74C3C;font-weight:700;text-decoration:none;">View
+                    All</a>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-info-circle"></i>
+                <h3>About</h3>
+                <p>About the system, why it was built and what benefits it offers to students and admin.</p>
+                <a href="#about"
+                    style="display:inline-block;margin-top:14px;color:#E74C3C;font-weight:700;text-decoration:none;">View
+                    All</a>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-star"></i>
+                <h3>Features</h3>
+                <p>See all key features including payments, receipts, and student analytics.</p>
+                <a href="#features"
+                    style="display:inline-block;margin-top:14px;color:#E74C3C;font-weight:700;text-decoration:none;">View
+                    All</a>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-address-book"></i>
+                <h3>Contact</h3>
+                <p>Support and contact information for any issue or query.</p>
+                <a href="#contact"
+                    style="display:inline-block;margin-top:14px;color:#E74C3C;font-weight:700;text-decoration:none;">View
+                    All</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section reveal" id="about">
+        <h2>About System</h2>
+        <p style="text-align: center; line-height: 1.8; color: #ecf0f1; max-width: 800px; margin: 0 auto;">
+            Our Student Exam Fee Management System is built to make the payment process seamless. No more long queues;
+            pay your fees instantly from any device and get your digital receipt in seconds.
+        </p>
+    </section>
+
+    <section class="section reveal" id="features">
+        <h2>Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-user-shield"></i>
+                <h3>Secure Login</h3>
+                <p>Safe and encrypted access for both students and administrators.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Quick Payment</h3>
+                <p>Multiple payment options with instant transaction updates.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-file-invoice"></i>
+                <h3>Digital Receipts</h3>
+                <p>Download and save your official receipts instantly after payment.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-history"></i>
+                <h3>Track History</h3>
+                <p>Check all your previous payments and pending dues in one place.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section reveal" id="contact">
+        <h2>Get In Touch</h2>
+        <div class="contact-container">
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <h4>Email</h4>
+                <p>rahulpramod46@gmail.com</p>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-phone-alt"></i>
+                <h4>Call Us</h4>
+                <p>+91 9959840270</p>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <h4>Location</h4>
+                <p>DRK Instition Of Science & Technology Hyderabad</p>
+            </div>
+        </div>
+    </section>
+
+    <button id="backToTop" onclick="scrollToTop()"><i class="fas fa-chevron-up"></i></button>
+
+    <footer class="footer">
+        <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <p>&copy; 2026 Student Exam Fee Management System. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        function closeAlert() {
+            document.getElementById("alertBox").style.display = "none";
+            document.getElementById("mainHeader").style.top = "0px";
+        }
+
+        // SLIDER
+        let slides = document.querySelectorAll(".slide");
+        let idx = 0;
+        setInterval(() => {
+            slides[idx].classList.remove("active-slide");
+            idx = (idx + 1) % slides.length;
+            slides[idx].classList.add("active-slide");
+        }, 5000);
+
+        function goLogin() { window.location.href = "login.html"; }
+
+        // BACK TO TOP LOGIC
+        window.onscroll = function () {
+            let btn = document.getElementById("backToTop");
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.style.display = "flex";
+            } else {
+                btn.style.display = "none";
+            }
+            // Reveal on scroll
+            document.querySelectorAll(".reveal").forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add("active");
+            });
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
